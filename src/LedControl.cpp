@@ -73,10 +73,6 @@ LedControl::begin(int dataPin, int clkPin, int csPin, int numDevices) {
     }
 }
 
-int LedControl::getDeviceCount() {
-    return maxDevices;
-}
-
 void LedControl::shutdown(int addr, bool b) {
     if(addr<0 || addr>=maxDevices)
         return;
@@ -114,6 +110,10 @@ void LedControl::clearDisplay(int addr) {
     }
 }
 #ifndef MF_REDUCE_FUNCT_LEDCONTROL
+int LedControl::getDeviceCount() {
+    return maxDevices;
+}
+
 void LedControl::setLed(int addr, int row, int column, boolean state) {
     int offset;
     byte val=0x00;
