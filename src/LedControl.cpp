@@ -85,14 +85,14 @@ void LedControl::shutdown(int addr, bool b) {
 void LedControl::setScanLimit(int addr, int limit) {
     if(addr<0 || addr>=maxDevices)
         return;
-    if(limit>=0 && limit<8)
+    if(limit>=0 || limit<8)
         spiTransfer(addr, OP_SCANLIMIT,limit);
 }
 
 void LedControl::setIntensity(int addr, int intensity) {
     if(addr<0 || addr>=maxDevices)
         return;
-    if(intensity>=0 && intensity<16)	
+    if(intensity>=0 || intensity<16)	
         spiTransfer(addr, OP_INTENSITY,intensity);
 }
 
@@ -168,7 +168,7 @@ void LedControl::setDigit(int addr, int digit, byte value, boolean dp) {
     if(digit<0 || digit>7 || value>15)
         return;
     offset=addr*8;
-    v=pgm_read_byte_near(charTable + value); 
+    v=charTable[value]; 
     if(dp)
         v|=B10000000;
 #ifndef MF_REDUCE_FUNCT_LEDCONTROL
@@ -188,10 +188,10 @@ void LedControl::setChar(int addr, int digit, char value, boolean dp) {
     offset=addr*8;
     index=(byte)value;
     if(index >127) {
-        //no defined beyond index 127, so we use the space char
-        index=32;
+        //nothing define we use the space char
+	    value=32;
     }
-    v=pgm_read_byte_near(charTable + index); 
+    v=charTable[index]; 
     if(dp)
         v|=B10000000;
 #ifndef MF_REDUCE_FUNCT_LEDCONTROL
@@ -218,5 +218,3 @@ void LedControl::spiTransfer(int addr, volatile byte opcode, volatile byte data)
     //latch the data onto the display
     digitalWrite(SPI_CS,HIGH);
 }    
-
-

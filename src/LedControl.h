@@ -27,8 +27,6 @@
 #ifndef LedControl_h
 #define LedControl_h
 
-#include <avr/pgmspace.h>
-
 #if (ARDUINO >= 100)
 #include <Arduino.h>
 #else
@@ -212,6 +210,3 @@ class LedControl {
 };
 
 #endif	//LedControl.h
-
-
-
