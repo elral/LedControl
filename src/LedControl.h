@@ -38,24 +38,43 @@
 /*
  * Segments to be switched on for characters and digits on
  * 7-Segment Displays
+ * B01234567  
+ *
+ *   1
+ * 6   2
+ *   7
+ * 5   3
+ *   4
  */
-const static byte charTable [] PROGMEM  = {
+const static byte charTable[128] = {
     B01111110,B00110000,B01101101,B01111001,B00110011,B01011011,B01011111,B01110000,
     B01111111,B01111011,B01110111,B00011111,B00001101,B00111101,B01001111,B01000111,
     B00000000,B00000000,B00000000,B00000000,B00000000,B00000000,B00000000,B00000000,
     B00000000,B00000000,B00000000,B00000000,B00000000,B00000000,B00000000,B00000000,
+ // (space)  ,!        ,"        ,#        ,$        ,%        ,&        ,'
     B00000000,B00000000,B00000000,B00000000,B00000000,B00000000,B00000000,B00000000,
-    B00000000,B00000000,B00000000,B00000000,B10000000,B00000001,B10000000,B00000000,
+ // (        ,)        ,*        ,+        ,,        ,-        ,.        ,/
+    B00000000,B00000000,B00000000,B00000000,B10000000,B00000001,B10000000,B00100101,
+ // 0        ,1        ,2        ,3        ,4        ,5        ,6        ,7
     B01111110,B00110000,B01101101,B01111001,B00110011,B01011011,B01011111,B01110000,
-    B01111111,B01111011,B00000000,B00000000,B00000000,B00000000,B00000000,B00000000,
-    B00000000,B01110111,B00011111,B00001101,B00111101,B01001111,B01000111,B00000000,
-    B00110111,B00000000,B00000000,B00000000,B00001110,B00000000,B00000000,B00000000,
-    B01100111,B00000000,B00000000,B00000000,B00000000,B00000000,B00000000,B00000000,
-    B00000000,B00000000,B00000000,B00000000,B00000000,B00000000,B00000000,B00001000,
-    B00000000,B01110111,B00011111,B00001101,B00111101,B01001111,B01000111,B00000000,
-    B00110111,B00000000,B00000000,B00000000,B00001110,B00000000,B00010101,B00011101,
-    B01100111,B00000000,B00000000,B00000000,B00000000,B00000000,B00000000,B00000000,
-    B00000000,B00000000,B00000000,B00000000,B00000000,B00000000,B00000000,B00000000
+ // 8        ,9        ,:        ,;        ,<        ,=        ,>        ,?
+    B01111111,B01111011,B00000000,B00000000,B00000000,B00001001,B00000000,B00000000,
+ // @        ,A        ,B        ,C        ,D        ,E        ,F        ,G  
+    B00000000,B01110111,B01111111,B01001110,B01111110,B01001111,B01000111,B01011111,
+ // H        ,I        ,J        ,K        ,L        ,M        ,N        ,O
+    B00110111,B00110000,B01111100,B00000000,B00001110,B00000000,B01110110,B01111110,
+ // P        ,Q        ,R        ,S        ,T        ,U        ,V        ,W
+    B01100111,B01111110,B01110111,B01011011,B01000110,B00111110,B00000000,B00000000,
+ // X        ,Y        ,Z        ,[        ,\        ,]        ,^        ,_
+    B00000000,B00110011,B01101101,B01001110,B00010011,B01111000,B00000000,B00001000,
+ // `        ,a        ,b        ,c        ,d        ,e        ,f        ,g
+    B00000000,B01111101,B00011111,B00001101,B00111101,B01001111,B01000111,B01111011,
+ // h        ,i        ,j        ,k        ,l        ,m        ,n        ,o
+    B00110111,B00110000,B00111000,B00000000,B00000110,B00000000,B00010101,B00011101,
+ // p        ,q        ,r        ,s        ,t        ,u        ,v        ,w
+    B01100111,B01110011,B00000101,B01011011,B00001111,B00011100,B00000000,B00000000,
+ // x        ,y        ,z        ,{        ,|        ,}        ,~        ,(delete)
+    B00000000,B00100111,B01101101,B01001110,B00000000,B01111000,B00000000,B00000000
 };
 
 class LedControl {
@@ -64,9 +83,10 @@ class LedControl {
         byte spidata[16];
         /* Send out a single command to the device */
         void spiTransfer(int addr, byte opcode, byte data);
-
+#ifndef MF_REDUCE_FUNCT_LEDCONTROL
         /* We keep track of the led-status for all 8 devices in this array */
         byte status[64];
+#endif
         /* Data is shifted out of this pin*/
         int SPI_MOSI;
         /* The clock is signaled on this pin */
@@ -80,12 +100,18 @@ class LedControl {
         /* 
          * Create a new controler 
          * Params :
+         */
+        LedControl();
+
+        /* 
+         * Defines the new controler 
+         * Params :
          * dataPin		pin on the Arduino where data gets shifted out
          * clockPin		pin for the clock
          * csPin		pin for selecting the device 
          * numDevices	maximum number of devices that can be controled
          */
-        LedControl(int dataPin, int clkPin, int csPin, int numDevices=1);
+        void begin(int dataPin, int clkPin, int csPin, int numDevices=1);
 
         /*
          * Gets the number of devices attached to this LedControl.
@@ -128,6 +154,7 @@ class LedControl {
          */
         void clearDisplay(int addr);
 
+#ifndef MF_REDUCE_FUNCT_LEDCONTROL
         /* 
          * Set the status of a single Led.
          * Params :
@@ -158,7 +185,7 @@ class LedControl {
          *		corresponding Led.
          */
         void setColumn(int addr, int col, byte value);
-
+#endif
         /* 
          * Display a hexadecimal digit on a 7-Segment Display
          * Params:
