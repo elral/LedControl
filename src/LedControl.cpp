@@ -45,7 +45,7 @@
 
 LedControl::LedControl() {}
 
-LedControl::begin(int dataPin, int clkPin, int csPin, int numDevices) {
+void LedControl::begin(int dataPin, int clkPin, int csPin, int numDevices) {
     SPI_MOSI=dataPin;
     SPI_CLK=clkPin;
     SPI_CS=csPin;
