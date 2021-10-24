@@ -168,7 +168,7 @@ void LedControl::setDigit(int addr, int digit, byte value, boolean dp) {
     if(digit<0 || digit>7 || value>15)
         return;
     offset=addr*8;
-    v=charTable[value]; 
+    v=pgm_read_byte_near(charTable + value); 
     if(dp)
         v|=B10000000;
 #ifndef MF_REDUCE_FUNCT_LEDCONTROL
@@ -191,7 +191,7 @@ void LedControl::setChar(int addr, int digit, char value, boolean dp) {
         //nothing define we use the space char
 	    value=32;
     }
-    v=charTable[index]; 
+    v=pgm_read_byte_near(charTable + index); 
     if(dp)
         v|=B10000000;
 #ifndef MF_REDUCE_FUNCT_LEDCONTROL
