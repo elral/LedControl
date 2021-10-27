@@ -43,7 +43,9 @@
 #define OP_SHUTDOWN    12
 #define OP_DISPLAYTEST 15
 
-LedControl::LedControl(int dataPin, int clkPin, int csPin, int numDevices) {
+LedControl::LedControl() {}
+
+void LedControl::begin(int dataPin, int clkPin, int csPin, int numDevices) {
     SPI_MOSI=dataPin;
     SPI_CLK=clkPin;
     SPI_CS=csPin;
@@ -55,8 +57,10 @@ LedControl::LedControl(int dataPin, int clkPin, int csPin, int numDevices) {
     pinMode(SPI_CS,OUTPUT);
     digitalWrite(SPI_CS,HIGH);
     SPI_MOSI=dataPin;
+#ifndef MF_REDUCE_FUNCT_LEDCONTROL
     for(int i=0;i<64;i++) 
         status[i]=0x00;
+#endif
     for(int i=0;i<maxDevices;i++) {
         spiTransfer(i,OP_DISPLAYTEST,0);
         //scanlimit is set to max on startup
@@ -67,10 +71,6 @@ LedControl::LedControl(int dataPin, int clkPin, int csPin, int numDevices) {
         //we go into shutdown-mode on startup
         shutdown(i,true);
     }
-}
-
-int LedControl::getDeviceCount() {
-    return maxDevices;
 }
 
 void LedControl::shutdown(int addr, bool b) {
@@ -85,14 +85,14 @@ void LedControl::shutdown(int addr, bool b) {
 void LedControl::setScanLimit(int addr, int limit) {
     if(addr<0 || addr>=maxDevices)
         return;
-    if(limit>=0 && limit<8)
+    if(limit>=0 || limit<8)
         spiTransfer(addr, OP_SCANLIMIT,limit);
 }
 
 void LedControl::setIntensity(int addr, int intensity) {
     if(addr<0 || addr>=maxDevices)
         return;
-    if(intensity>=0 && intensity<16)	
+    if(intensity>=0 || intensity<16)	
         spiTransfer(addr, OP_INTENSITY,intensity);
 }
 
@@ -103,9 +103,15 @@ void LedControl::clearDisplay(int addr) {
         return;
     offset=addr*8;
     for(int i=0;i<8;i++) {
+#ifndef MF_REDUCE_FUNCT_LEDCONTROL
         status[offset+i]=0;
-        spiTransfer(addr, i+1,status[offset+i]);
+#endif
+        spiTransfer(addr, i+1,0);
     }
+}
+#ifndef MF_REDUCE_FUNCT_LEDCONTROL
+int LedControl::getDeviceCount() {
+    return maxDevices;
 }
 
 void LedControl::setLed(int addr, int row, int column, boolean state) {
@@ -151,6 +157,7 @@ void LedControl::setColumn(int addr, int col, byte value) {
         setLed(addr,row,col,val);
     }
 }
+#endif
 
 void LedControl::setDigit(int addr, int digit, byte value, boolean dp) {
     int offset;
@@ -164,7 +171,9 @@ void LedControl::setDigit(int addr, int digit, byte value, boolean dp) {
     v=pgm_read_byte_near(charTable + value); 
     if(dp)
         v|=B10000000;
+#ifndef MF_REDUCE_FUNCT_LEDCONTROL
     status[offset+digit]=v;
+#endif
     spiTransfer(addr, digit+1,v);
 }
 
@@ -179,13 +188,15 @@ void LedControl::setChar(int addr, int digit, char value, boolean dp) {
     offset=addr*8;
     index=(byte)value;
     if(index >127) {
-        //no defined beyond index 127, so we use the space char
-        index=32;
+        //nothing define we use the space char
+	    value=32;
     }
     v=pgm_read_byte_near(charTable + index); 
     if(dp)
         v|=B10000000;
+#ifndef MF_REDUCE_FUNCT_LEDCONTROL
     status[offset+digit]=v;
+#endif
     spiTransfer(addr, digit+1,v);
 }
 
@@ -207,5 +218,3 @@ void LedControl::spiTransfer(int addr, volatile byte opcode, volatile byte data)
     //latch the data onto the display
     digitalWrite(SPI_CS,HIGH);
 }    
-
-
