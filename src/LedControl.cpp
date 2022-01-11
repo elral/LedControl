@@ -97,11 +97,11 @@ void LedControl::setIntensity(int addr, int intensity) {
 }
 
 void LedControl::clearDisplay(int addr) {
-    int offset;
-
     if(addr<0 || addr>=maxDevices)
         return;
-    offset=addr*8;
+#ifndef MF_REDUCE_FUNCT_LEDCONTROL
+    int offset=addr*8;
+#endif
     for(int i=0;i<8;i++) {
 #ifndef MF_REDUCE_FUNCT_LEDCONTROL
         status[offset+i]=0;
@@ -160,14 +160,14 @@ void LedControl::setColumn(int addr, int col, byte value) {
 #endif
 
 void LedControl::setDigit(int addr, int digit, byte value, boolean dp) {
-    int offset;
-    byte v;
-
     if(addr<0 || addr>=maxDevices)
         return;
     if(digit<0 || digit>7 || value>15)
         return;
-    offset=addr*8;
+#ifndef MF_REDUCE_FUNCT_LEDCONTROL
+    int offset=addr*8;
+#endif
+    byte v;
     v=pgm_read_byte_near(charTable + value); 
     if(dp)
         v|=B10000000;
@@ -178,14 +178,15 @@ void LedControl::setDigit(int addr, int digit, byte value, boolean dp) {
 }
 
 void LedControl::setChar(int addr, int digit, char value, boolean dp) {
-    int offset;
-    byte index,v;
-
     if(addr<0 || addr>=maxDevices)
         return;
     if(digit<0 || digit>7)
         return;
-    offset=addr*8;
+#ifndef MF_REDUCE_FUNCT_LEDCONTROL
+    int offset=addr*8;
+#endif
+    byte index,v;
+
     index=(byte)value;
     if(index >127) {
         //nothing define we use the space char
