@@ -123,7 +123,7 @@ void LedControl::setLed(int addr, int row, int column, boolean state) {
     if(row<0 || row>7 || column<0 || column>7)
         return;
     offset=addr*8;
-    val=B10000000 >> column;
+    val=0b10000000 >> column;
     if(state)
         status[offset+row]=status[offset+row]|val;
     else {
@@ -170,7 +170,7 @@ void LedControl::setDigit(int addr, int digit, byte value, boolean dp) {
     byte v;
     v=pgm_read_byte_near(charTable + value); 
     if(dp)
-        v|=B10000000;
+        v|=0b10000000;
 #ifndef MF_REDUCE_FUNCT_LEDCONTROL
     status[offset+digit]=v;
 #endif
@@ -194,7 +194,7 @@ void LedControl::setChar(int addr, int digit, char value, boolean dp) {
     }
     v=pgm_read_byte_near(charTable + index); 
     if(dp)
-        v|=B10000000;
+        v|=0b10000000;
 #ifndef MF_REDUCE_FUNCT_LEDCONTROL
     status[offset+digit]=v;
 #endif
